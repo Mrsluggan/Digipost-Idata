@@ -51,6 +51,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+  			<groupId>no.digipost</groupId>
+  			<artifactId>digipost-api-client-java</artifactId>
+  		<version>16.4.1</version>
+
+</dependency>
 	</dependencies>
 
 	<build>
