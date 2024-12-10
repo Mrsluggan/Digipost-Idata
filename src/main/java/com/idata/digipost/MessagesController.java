@@ -32,7 +32,7 @@ import java.util.UUID;
 @RequestMapping("/api/message")
 public class MessagesController {
 
-   MessageService messageService = new MessageService();
+   MessageService messageService;
 
    public MessagesController(MessageService messageService){
        this.messageService = messageService;

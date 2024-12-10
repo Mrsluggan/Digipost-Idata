@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
+import com.idata.digipost.config.SignerConfig;
 import no.digipost.api.client.representations.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,55 +24,45 @@ import no.digipost.api.client.security.Signer;
 
 import static no.digipost.api.client.security.Signer.usingKeyFromPKCS12KeyStore;
 
-@Service
-public class MessageService {
-    SenderId senderId = SenderId.of(152138);
+    @Service
+    public class MessageService {
 
-    Signer signer = usingKeyFromPKCS12KeyStore(getCertificate(),"IDATA2024!");
+        private final SignerConfig signerConfig;
+        private final DigipostClient client;
 
-
-
-
-    URI apiUri = URI.create("https://api.test.digipost.no");
-    DigipostClientConfig config = DigipostClientConfig.newConfiguration().digipostApiUri(apiUri).build();
-    DigipostClient client = new DigipostClient(config, senderId.asBrokerId(), signer);
-
-
-    public MessageService()  {
-        System.out.println(signer);
-
-    }
-
-
-    public MessageDelivery sendMessage(MultipartFile document) {
-
-
-        PersonalIdentificationNumber pin = new PersonalIdentificationNumber("19906997420");
-        UUID documentUuid = UUID.randomUUID();
-        Document primaryDocument = new Document(documentUuid, "Documet subject", FileType.PDF);
-
-        Message message = Message.newMessage("messageId", primaryDocument)
-                .recipient(pin)
-                .build();
-
-        try {
-            return client.createMessage(message)
-                    .addContent(primaryDocument, document.getBytes())
-                    .send();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        @Autowired
+        public MessageService(SignerConfig signerConfig) {
+            this.signerConfig = signerConfig;
+            this.client = signerConfig.getClient();
         }
 
-    }
+        public MessageDelivery sendMessage(MultipartFile document) {
 
-    private static InputStream getCertificate() {
-        try {
-            return new FileInputStream(new File("src/main/resources/certificate-152138.p12"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Kunne ikke lese sertifikatfil: " + e.getMessage(), e);
+            PersonalIdentificationNumber pin = new PersonalIdentificationNumber("19906997420");
+            UUID documentUuid = UUID.randomUUID();
+            Document primaryDocument = new Document(documentUuid, "Document subject", FileType.PDF);
+
+            Message message = Message.newMessage("messageId", primaryDocument)
+                    .recipient(pin)
+                    .build();
+
+            try {
+                return client.createMessage(message)
+                        .addContent(primaryDocument, document.getBytes())
+                        .send();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+
+        private static InputStream getCertificate() {
+            try {
+                return new FileInputStream(new File("src/main/resources/certificate-152138.p12"));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Cannot read certificate file: " + e.getMessage(), e);
+            }
         }
     }
 
-
-}
