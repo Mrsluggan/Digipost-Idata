@@ -12,13 +12,23 @@ import no.digipost.api.client.security.Signer;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.xml.bind.DatatypeConverter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.UUID;
 
 @RestController
@@ -29,19 +39,16 @@ public class MessagesController {
 
     private String secret;
 
-    SenderId senderId = SenderId.of(152138);
-    Signer signer;
-    try
 
+    // Todo, lär dig hur privatekey funkar
+    Signer signer;
+    SenderId senderId = SenderId.of(152138);
 
     URI apiUri = URI.create("https://api.test.digipost.no");
     DigipostClientConfig config = DigipostClientConfig.newConfiguration().digipostApiUri(apiUri).build();
 
     DigipostClient client = new DigipostClient(
             config, senderId.asBrokerId(), signer);
-
-    public MessagesController() throws IOException {
-    }
 
 
     @PostMapping()
