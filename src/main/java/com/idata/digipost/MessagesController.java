@@ -1,32 +1,14 @@
 package com.idata.digipost;
 
-import no.digipost.api.client.*;
-import no.digipost.api.client.DigipostClient;
-import no.digipost.api.client.DigipostClientConfig;
-import no.digipost.api.client.SenderId;
 import no.digipost.api.client.representations.*;
-import no.digipost.api.client.security.Signer;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.xml.bind.DatatypeConverter;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
+import java.util.List;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/message")
@@ -39,9 +21,14 @@ public class MessagesController {
     }
 
     @PostMapping()
-    public MessageDelivery sendMessage(@RequestPart MultipartFile document) throws IOException {
+    public ResponseEntity<MessageDelivery> sendMessage(@RequestPart List<MultipartFile> document, String subject,String recipient) throws IOException {
+        for (MultipartFile file : document) {
+            System.out.println(file.getOriginalFilename());
+        }
 
-        return messageService.sendMessage(document) ;
+
+       System.out.println(subject);
+        return ResponseEntity.ok(messageService.sendMessage(recipient,subject,document));
     }
 
 
