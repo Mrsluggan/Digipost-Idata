@@ -35,12 +35,15 @@ public class MessageService {
     }
 
     public MessageDelivery sendMessage(String subject, List<MultipartFile> document) {
-
+        // Hittar användare
         PersonalIdentificationNumber pin = new PersonalIdentificationNumber("19906997420");
 
+        // Skapar primär dokumentet
         UUID documentUuid = UUID.randomUUID();
         Document primaryDocument = new Document(documentUuid, subject, FileType.fromFilename(document.get(0).getOriginalFilename()));
 
+
+        // Kollar om det finns några extra dokument i anropet
         List<Document> attachments = new ArrayList<>();
         if (!document.isEmpty()) {
             for (int i = 1; i < document.size(); i++) {
