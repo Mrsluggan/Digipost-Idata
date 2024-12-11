@@ -34,9 +34,9 @@ public class MessageService {
         this.client = signerConfig.getClient();
     }
 
-    public MessageDelivery sendMessage(String subject, List<MultipartFile> document) {
+    public MessageDelivery sendMessage(String recipient, String subject, List<MultipartFile> document) {
         // Hittar användare
-        PersonalIdentificationNumber pin = new PersonalIdentificationNumber("19906997420");
+        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(recipient);
 
         // Skapar primär dokumentet
         UUID documentUuid = UUID.randomUUID();

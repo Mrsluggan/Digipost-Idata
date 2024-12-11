@@ -21,14 +21,14 @@ public class MessagesController {
     }
 
     @PostMapping()
-    public ResponseEntity<MessageDelivery> sendMessage(@RequestPart List<MultipartFile> document, String subject) throws IOException {
+    public ResponseEntity<MessageDelivery> sendMessage(@RequestPart List<MultipartFile> document, String subject,String recipient) throws IOException {
         for (MultipartFile file : document) {
             System.out.println(file.getOriginalFilename());
         }
 
 
        System.out.println(subject);
-        return ResponseEntity.ok(messageService.sendMessage(subject,document));
+        return ResponseEntity.ok(messageService.sendMessage(recipient,subject,document));
     }
 
 
