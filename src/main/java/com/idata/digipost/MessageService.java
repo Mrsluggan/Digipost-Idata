@@ -1,12 +1,7 @@
 package com.idata.digipost;
 
 import java.io.*;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
+
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -18,11 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
-import no.digipost.api.client.DigipostClientConfig;
-import no.digipost.api.client.SenderId;
-import no.digipost.api.client.security.Signer;
-
-import static no.digipost.api.client.security.Signer.usingKeyFromPKCS12KeyStore;
 
 @Slf4j
 @Service
