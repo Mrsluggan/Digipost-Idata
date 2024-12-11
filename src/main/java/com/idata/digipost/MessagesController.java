@@ -25,13 +25,23 @@ public class MessagesController {
     }
 
     @PostMapping()
-    public ResponseEntity<MessageDelivery> sendMessage(@RequestPart List<MultipartFile> document, String subject,String recipient) throws IOException {
+    public ResponseEntity<String> sendMessage(@RequestPart List<MultipartFile> document, String subject,String recipient){
+
+       // Dessa behövs inte, bara här för testing
         for (MultipartFile file : document) {
             logger.info("These are the files: "+file.getOriginalFilename());
         }
-        logger.info("Starting to send message");
-        return ResponseEntity.ok(messageService.sendMessage(recipient,subject,document));
-    }
+        try {
+            logger.info("Starting to send message");
+            messageService.sendMessage(recipient,subject,document);
+            logger.info("Message sent");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+   }
 
 
     @GetMapping()
