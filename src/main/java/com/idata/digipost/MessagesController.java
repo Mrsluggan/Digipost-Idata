@@ -24,6 +24,8 @@ public class MessagesController {
        this.messageService = messageService;
     }
 
+
+    // TODO gör klass eller objekt för filerna som skickas, kanske något Messagedto
     @PostMapping()
     public ResponseEntity<String> sendMessage(@RequestPart List<MultipartFile> document, String subject,String recipient){
 

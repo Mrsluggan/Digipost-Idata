@@ -72,6 +72,8 @@ public class MessageService {
             messageBuilder.send();
             logger.info("message sent");
 
+
+            // TODO hitta bättre return type
             return "message sent";
         } catch (IOException e) {
             logger.warning("Error while sending message: " + e);
