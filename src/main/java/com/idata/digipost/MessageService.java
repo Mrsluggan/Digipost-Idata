@@ -29,25 +29,19 @@ public class MessageService {
     }
 
     public String sendMessage(String recipient, String subject, List<MultipartFile> document) {
-        if (document == null || document.isEmpty() || recipient == null) {
-            logger.info("No documents or recipient found");
-            return null;
-        }
+        handleEmptyInput(document, recipient,subject);
         // Hittar användare
-        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(recipient);
         logger.info("Sending message to: " + recipient);
+        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(recipient);
+
+
         // Skapar primär dokumentet
         UUID documentUuid = UUID.randomUUID();
         Document primaryDocument = new Document(documentUuid, subject, FileType.fromFilename(document.get(0).getOriginalFilename()));
 
 
         // Kollar om det finns några extra dokument i anropet
-        List<Document> attachments = new ArrayList<>();
-        if (!document.isEmpty()) {
-            for (int i = 1; i < document.size(); i++) {
-                attachments.add(new Document(UUID.randomUUID(), document.get(i).getOriginalFilename(), FileType.fromFilename(document.get(i).getOriginalFilename())));
-            }
-        }
+        List<Document> attachments = handleAttachments(document);
 
         Message message = Message.newMessage("messageId", primaryDocument).recipient(pin).attachments(attachments).build();
 
@@ -70,9 +64,34 @@ public class MessageService {
             e.printStackTrace();
             return null;
         }
-
-
     }
+
+
+    // TODO ändra när objekt är skapat
+    private void  handleEmptyInput(List<MultipartFile> document, String recipient,String subject) {
+        if (recipient == null || subject == null || document == null || document.isEmpty()) {
+            String message = recipient == null ? "Recipient is null" :
+                    subject == null ? "No subject found" :
+                            "No documents found";
+            logger.warning(message);
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private List<Document> handleAttachments(List<MultipartFile> document){
+
+        List<Document> attachments = new ArrayList<>();
+        if (!document.isEmpty()) {
+            for (int i = 1; i < document.size(); i++) {
+                attachments.add(new Document(UUID.randomUUID(), document.get(i).getOriginalFilename(), FileType.fromFilename(document.get(i).getOriginalFilename())));
+            }
+        }
+        return attachments;
+    }
+
+
+
+
 
 }
 
