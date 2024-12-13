@@ -33,3 +33,5 @@ build/
 .vscode/
 .env
 /src/main/resources/certificate-152138.p12
+/src/main/resources/env.properties
+

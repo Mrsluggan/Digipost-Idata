@@ -55,8 +55,14 @@
   			<groupId>no.digipost</groupId>
   			<artifactId>digipost-api-client-java</artifactId>
   		<version>16.4.1</version>
+		</dependency>
 
-</dependency>
+		<dependency>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>java-dotenv</artifactId>
+			<version>5.2.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

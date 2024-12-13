@@ -1,10 +1,11 @@
-package com.idata.digipost;
+package com.idata.digipost.controller;
 
 import no.digipost.api.client.representations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.idata.digipost.service.MessageService;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/message")
 public class MessagesController {
 
-   MessageService messageService;
+   private final MessageService messageService;
 
    public MessagesController(MessageService messageService){
        this.messageService = messageService;
@@ -27,7 +28,7 @@ public class MessagesController {
         }
 
 
-       System.out.println(subject);
+        System.out.println(subject);
         return ResponseEntity.ok(messageService.sendMessage(recipient,subject,document));
     }
 

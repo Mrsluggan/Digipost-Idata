@@ -1,12 +1,6 @@
-package com.idata.digipost;
+package com.idata.digipost.service;
 
 import java.io.*;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 
 import com.idata.digipost.config.SignerConfig;
@@ -16,22 +10,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
-import no.digipost.api.client.DigipostClientConfig;
-import no.digipost.api.client.SenderId;
-import no.digipost.api.client.security.Signer;
-
-import static no.digipost.api.client.security.Signer.usingKeyFromPKCS12KeyStore;
+import org.slf4j.Logger;
 
 @Service
 public class MessageService {
 
-    private final SignerConfig signerConfig;
-    private final DigipostClient client;
+    private final SignerConfig signerConfig; 
+    private final DigipostClient client; 
+    private final Logger logger;
 
     @Autowired
-    public MessageService(SignerConfig signerConfig) {
+    public MessageService(SignerConfig signerConfig, Logger logger) {
         this.signerConfig = signerConfig;
-        this.client = signerConfig.getClient();
+        this.client = signerConfig.getClient(); 
+        this.logger = logger;
     }
 
     public MessageDelivery sendMessage(String recipient, String subject, List<MultipartFile> document) {
@@ -69,12 +61,5 @@ public class MessageService {
 
     }
 
-    private static InputStream getCertificate() {
-        try {
-            return new FileInputStream(new File("src/main/resources/certificate-152138.p12"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Cannot read certificate file: " + e.getMessage(), e);
-        }
-    }
 }
 
