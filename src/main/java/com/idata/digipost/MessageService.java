@@ -21,15 +21,13 @@ public class MessageService {
 
     private final DigipostClient client;
     private static final Logger LOGGER = Logger.getLogger(MessageService.class.getName());
-    private final org.slf4j.Logger logger;
 
     @Autowired
-    public MessageService(SignerConfig signerConfig, org.slf4j.Logger logger) {
+    public MessageService(SignerConfig signerConfig) {
         this.client = signerConfig.getClient();
-        this.logger = logger;
     }
 
-    public String sendMessage(List<MultipartFile> documents, Request request) {
+    public Request sendMessage(List<MultipartFile> documents, Request request) {
         validateInput(documents, request);
 
         LOGGER.info("Sending message to: " + request.getRecipient());
@@ -53,7 +51,7 @@ public class MessageService {
 
             messageBuilder.send();
             LOGGER.info("Message sent successfully");
-            return "Message sent successfully";
+            return request;
         } catch (IOException e) {
             LOGGER.severe("Error while sending message: " + e.getMessage());
             throw new RuntimeException("Failed to send message", e);
@@ -69,8 +67,8 @@ public class MessageService {
         };
     }
 
-    public Document createInvoiceDocument(Request request, String document) {
-        logger.info("Creating invoice");
+    private Document createInvoiceDocument(Request request, String document) {
+        LOGGER.info("Creating invoice");
         InvoiceDTO invoice = request.getInvoice();
         return new Document(
                 UUID.randomUUID(),
@@ -87,12 +85,12 @@ public class MessageService {
     }
 
     private Document createLetterDocument(String document) {
-        logger.info("Creating letter");
+        LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
 
     private Document createLetterWithSmsNotificationDocument(Request request, String document) {
-        logger.info("Creating letter with SMS notification");
+        LOGGER.info("Creating letter with SMS notification");
         return new Document(
                 UUID.randomUUID(),
                 document,
@@ -106,7 +104,7 @@ public class MessageService {
     }
 
     private List<Document> createAttachments(List<MultipartFile> documents) {
-        logger.info("Creating attachments");
+        LOGGER.info("Creating attachments");
 
         if (documents.size() <= 1) {
             return Collections.emptyList();

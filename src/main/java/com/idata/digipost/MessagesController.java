@@ -30,13 +30,13 @@ public class MessagesController {
     public ResponseEntity<Request> sendMessage(@RequestPart List<MultipartFile> document,@RequestPart Request request) {
         logger.info("Request: " + request.toString());
         // Dessa behövs inte, bara här för testing
+        logger.info("Number of documents: " + document.size());
         for (MultipartFile file : document) {
-            logger.info("These are the files: " + file.getOriginalFilename());
+            logger.info(file.getOriginalFilename());
         }
         try {
             logger.info("Starting to send message");
-            messageService.sendMessage(document, request);
-            return ResponseEntity.ok(request);
+            return ResponseEntity.ok(messageService.sendMessage(document, request));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -46,7 +46,7 @@ public class MessagesControllerTest {
 
         ResponseEntity<String> expectedResponse = ResponseEntity.ok().build();
         Mockito.when(messageService.sendMessage(realDocuments, request))
-                .thenReturn(String.valueOf(expectedResponse.getStatusCode()));
+                .thenReturn(request);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
                         .file(document1)
