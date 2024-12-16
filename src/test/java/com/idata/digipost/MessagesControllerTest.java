@@ -56,16 +56,7 @@ public class MessagesControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
     }
-
-
-
-
-
-
-
-
-
-
+    
     @Test
     public void testSendMessageWithEmptyDocuments() throws Exception {
         // Arrange
