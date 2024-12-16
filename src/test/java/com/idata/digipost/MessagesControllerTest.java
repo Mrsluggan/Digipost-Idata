@@ -1,5 +1,7 @@
 package com.idata.digipost;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Part;
 import no.digipost.api.client.representations.MessageDelivery;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -33,44 +35,50 @@ public class MessagesControllerTest {
 
     @Test
     public void testSendMessageWithValidInputs() throws Exception {
+        Request request = new Request("test", "test@example.com", "letter", null);
+
         MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
         MockMultipartFile document2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
 
-         List<MockMultipartFile> documents = List.of(document1, document2);
-
-
-        String subject = "Test Subject";
-        String recipient = "19906997420";
         MultipartFile realFile1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
         MultipartFile realFile2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
         List<MultipartFile> realDocuments = List.of(realFile1, realFile2);
 
         ResponseEntity<String> expectedResponse = ResponseEntity.ok().build();
-        Mockito.when(messageService.sendMessage(recipient,subject, realDocuments))
-                .thenReturn(String.valueOf(expectedResponse.getStatusCode()));
+        Mockito.when(messageService.sendMessage(realDocuments, request))
+                .thenReturn(request);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
                         .file(document1)
                         .file(document2)
-                        .param("subject", subject)
-                        .param("recipient", recipient)
+                        .content(new ObjectMapper().writeValueAsString(request))
+
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
     }
 
+
+
+
+
+
+
+
+
+
     @Test
     public void testSendMessageWithEmptyDocuments() throws Exception {
         // Arrange
-        String subject = "Test Subject";
-        String recipient = "test@example.com";
 
-        Mockito.when(messageService.sendMessage(eq(recipient), eq(subject), any(List.class)))
+        Request request = new Request("test", "test@example.com", "letter", null);
+
+
+        Mockito.when(messageService.sendMessage(any(List.class), null))
                 .thenThrow(IllegalArgumentException.class);
 
         // Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
-                        .param("subject", subject)
-                        .param("recipient", recipient)
+                        .param("request", String.valueOf(request))
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isBadRequest());
     }
