@@ -1,8 +1,8 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Part;
-import no.digipost.api.client.representations.MessageDelivery;
+import com.idata.digipost.Models.Request;
+import com.idata.digipost.service.MessageService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;

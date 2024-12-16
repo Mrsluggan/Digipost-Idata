@@ -1,10 +1,11 @@
-package com.idata.digipost;
+package com.idata.digipost.service;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
 import com.idata.digipost.Models.InvoiceDTO;
+import com.idata.digipost.Models.Request;
 import com.idata.digipost.config.SignerConfig;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
