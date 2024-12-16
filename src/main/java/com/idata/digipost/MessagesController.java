@@ -27,7 +27,7 @@ public class MessagesController {
 
     // TODO gör klass eller objekt för filerna som skickas, kanske något Messagedto
     @PostMapping()
-    public ResponseEntity<String> sendMessage(@RequestPart List<MultipartFile> document,@RequestPart Request request) {
+    public ResponseEntity<Request> sendMessage(@RequestPart List<MultipartFile> document,@RequestPart Request request) {
         logger.info("Request: " + request.toString());
         // Dessa behövs inte, bara här för testing
         for (MultipartFile file : document) {
@@ -36,8 +36,7 @@ public class MessagesController {
         try {
             logger.info("Starting to send message");
             messageService.sendMessage(document, request);
-            logger.info("Message sent");
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

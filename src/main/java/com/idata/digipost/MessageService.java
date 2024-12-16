@@ -1,10 +1,6 @@
 package com.idata.digipost;
 
 import java.io.*;
-
-import java.math.BigDecimal;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -19,104 +15,122 @@ import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
 
-import javax.print.Doc;
-
 @Slf4j
 @Service
 public class MessageService {
 
-    private final SignerConfig signerConfig;
     private final DigipostClient client;
-    private final Logger logger = Logger.getLogger(MessageService.class.getName()); // Initialize logger
+    private static final Logger LOGGER = Logger.getLogger(MessageService.class.getName());
+    private final org.slf4j.Logger logger;
 
     @Autowired
-    public MessageService(SignerConfig signerConfig) {
-        this.signerConfig = signerConfig;
+    public MessageService(SignerConfig signerConfig, org.slf4j.Logger logger) {
         this.client = signerConfig.getClient();
+        this.logger = logger;
     }
 
     public String sendMessage(List<MultipartFile> documents, Request request) {
-        handleEmptyInput(documents, request);
+        validateInput(documents, request);
 
-        // Hittar användare
-        logger.info("Sending message to: " + request.getRecipient());
+        LOGGER.info("Sending message to: " + request.getRecipient());
         PersonalIdentificationNumber pin = new PersonalIdentificationNumber(request.getRecipient());
 
+        Document primaryDocument = createPrimaryDocument(request, documents.get(0).getOriginalFilename());
+        List<Document> attachments = createAttachments(documents);
 
-        // Skapar primär dokumentet
-        Document primaryDocument = handlePrimaryDocument(request, documents.get(0).getOriginalFilename());
-
-
-        // Kollar om det finns några extra dokument i anropet
-        List<Document> attachments = handleAttachments(documents);
-
-        Message message = Message.newMessage("messageId", primaryDocument).recipient(pin).attachments(attachments).build();
+        Message message = Message.newMessage("messageId", primaryDocument)
+                .recipient(pin)
+                .attachments(attachments)
+                .build();
 
         try {
-            var messageBuilder = client.createMessage(message).addContent(primaryDocument, documents.get(0).getBytes());
-            if (!documents.isEmpty()) {
-                for (int i = 0; i < attachments.size(); i++) {
-                    messageBuilder = messageBuilder.addContent(attachments.get(i), documents.get(i + 1).getBytes());
-                }
+            var messageBuilder = client.createMessage(message)
+                    .addContent(primaryDocument, documents.get(0).getBytes());
+
+            for (int i = 0; i < attachments.size(); i++) {
+                messageBuilder = messageBuilder.addContent(attachments.get(i), documents.get(i + 1).getBytes());
             }
 
             messageBuilder.send();
-            logger.info("message sent");
-
-
-            // TODO hitta bättre return type
-            return "message sent";
+            LOGGER.info("Message sent successfully");
+            return "Message sent successfully";
         } catch (IOException e) {
-            logger.warning("Error while sending message: " + e);
-            e.printStackTrace();
-            return null;
+            LOGGER.severe("Error while sending message: " + e.getMessage());
+            throw new RuntimeException("Failed to send message", e);
         }
     }
 
-
-    private Document handlePrimaryDocument(Request request, String document) {
-
+    private Document createPrimaryDocument(Request request, String document) {
         return switch (request.getType()) {
-            case "invoice" -> invoiceBuilder(request, document);
-            case "letter" -> letterBuilder(document);
-            default -> null;
+            case "invoice" -> createInvoiceDocument(request, document);
+            case "letter" -> createLetterDocument(document);
+            case "letterWithSmsNotification" -> createLetterWithSmsNotificationDocument(request, document);
+            default -> throw new IllegalArgumentException("Unsupported document type: " + request.getType());
         };
-
-
     }
 
-
-    public Document invoiceBuilder(Request request, String document) {
+    public Document createInvoiceDocument(Request request, String document) {
+        logger.info("Creating invoice");
         InvoiceDTO invoice = request.getInvoice();
-        return new Document(UUID.randomUUID(), request.getSubject(), FileType.fromFilename(document), new Invoice(invoice.getLink(), invoice.getDueDate(), invoice.getSum(), invoice.getCreditorAccount(), invoice.getKid()));
+        return new Document(
+                UUID.randomUUID(),
+                request.getSubject(),
+                FileType.fromFilename(document),
+                new Invoice(
+                        invoice.getLink(),
+                        invoice.getDueDate(),
+                        invoice.getSum(),
+                        invoice.getCreditorAccount(),
+                        invoice.getKid()
+                )
+        );
     }
 
-    private Document letterBuilder(String document) {
-
+    private Document createLetterDocument(String document) {
+        logger.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
 
+    private Document createLetterWithSmsNotificationDocument(Request request, String document) {
+        logger.info("Creating letter with SMS notification");
+        return new Document(
+                UUID.randomUUID(),
+                document,
+                FileType.fromFilename(document),
+                null,
+                new SmsNotification(1),
+                null,
+                AuthenticationLevel.PASSWORD,
+                SensitivityLevel.NORMAL
+        );
+    }
 
-    private List<Document> handleAttachments(List<MultipartFile> document) {
+    private List<Document> createAttachments(List<MultipartFile> documents) {
+        logger.info("Creating attachments");
+
+        if (documents.size() <= 1) {
+            return Collections.emptyList();
+        }
 
         List<Document> attachments = new ArrayList<>();
-        if (!document.isEmpty()) {
-            for (int i = 1; i < document.size(); i++) {
-                attachments.add(new Document(UUID.randomUUID(), document.get(i).getOriginalFilename(), FileType.fromFilename(document.get(i).getOriginalFilename())));
-            }
+        for (int i = 1; i < documents.size(); i++) {
+            attachments.add(new Document(
+                    UUID.randomUUID(),
+                    documents.get(i).getOriginalFilename(),
+                    FileType.fromFilename(documents.get(i).getOriginalFilename())
+            ));
         }
         return attachments;
     }
 
-    // TODO ändra när objekt är skapat
-    private void handleEmptyInput(List<MultipartFile> document, Request request) {
-        if (request == null || document == null || document.isEmpty()) {
-            String message = request == null ? "request is null" :
-                    "No documents found";
-            logger.warning(message);
+    private void validateInput(List<MultipartFile> documents, Request request) {
+        if (request == null || documents == null || documents.isEmpty()) {
+            String message = (request == null)
+                    ? "Request cannot be null"
+                    : "No documents found in the input";
+            LOGGER.severe(message);
             throw new IllegalArgumentException(message);
         }
     }
-
 }
 

@@ -39,8 +39,7 @@ public class MessagesControllerTest {
          List<MockMultipartFile> documents = List.of(document1, document2);
 
 
-        String subject = "Test Subject";
-        String recipient = "19906997420";
+         Request request = new Request();
         MultipartFile realFile1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
         MultipartFile realFile2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
         List<MultipartFile> realDocuments = List.of(realFile1, realFile2);
