@@ -1,22 +1,24 @@
 package com.idata.digipost;
 
+
+import com.idata.digipost.Models.InvoiceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class Messagedto {
+@NoArgsConstructor
+@Builder
+public class Request {
 
+    private String type;
+    private String recipient;
     private String subject;
-    private List<MultipartFile> document;
+
+    private InvoiceDTO invoice;
+
 
 
 }

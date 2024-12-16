@@ -2,17 +2,24 @@ package com.idata.digipost;
 
 import java.io.*;
 
+import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.logging.Logger;
 
+import com.idata.digipost.Models.InvoiceDTO;
 import com.idata.digipost.config.SignerConfig;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
+import no.digipost.api.datatypes.types.invoice.Invoice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
+
+import javax.print.Doc;
 
 @Slf4j
 @Service
@@ -28,28 +35,28 @@ public class MessageService {
         this.client = signerConfig.getClient();
     }
 
-    public String sendMessage(String recipient, String subject, List<MultipartFile> document) {
-        handleEmptyInput(document, recipient,subject);
+    public String sendMessage(List<MultipartFile> documents, Request request) {
+        handleEmptyInput(documents, request);
+
         // Hittar användare
-        logger.info("Sending message to: " + recipient);
-        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(recipient);
+        logger.info("Sending message to: " + request.getRecipient());
+        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(request.getRecipient());
 
 
         // Skapar primär dokumentet
-        UUID documentUuid = UUID.randomUUID();
-        Document primaryDocument = new Document(documentUuid, subject, FileType.fromFilename(document.get(0).getOriginalFilename()));
+        Document primaryDocument = handlePrimaryDocument(request, documents.get(0).getOriginalFilename());
 
 
         // Kollar om det finns några extra dokument i anropet
-        List<Document> attachments = handleAttachments(document);
+        List<Document> attachments = handleAttachments(documents);
 
         Message message = Message.newMessage("messageId", primaryDocument).recipient(pin).attachments(attachments).build();
 
         try {
-            var messageBuilder = client.createMessage(message).addContent(primaryDocument, document.get(0).getBytes());
-            if (!document.isEmpty()) {
+            var messageBuilder = client.createMessage(message).addContent(primaryDocument, documents.get(0).getBytes());
+            if (!documents.isEmpty()) {
                 for (int i = 0; i < attachments.size(); i++) {
-                    messageBuilder = messageBuilder.addContent(attachments.get(i), document.get(i + 1).getBytes());
+                    messageBuilder = messageBuilder.addContent(attachments.get(i), documents.get(i + 1).getBytes());
                 }
             }
 
@@ -67,18 +74,30 @@ public class MessageService {
     }
 
 
-    // TODO ändra när objekt är skapat
-    private void  handleEmptyInput(List<MultipartFile> document, String recipient,String subject) {
-        if (recipient == null || subject == null || document == null || document.isEmpty()) {
-            String message = recipient == null ? "Recipient is null" :
-                    subject == null ? "No subject found" :
-                            "No documents found";
-            logger.warning(message);
-            throw new IllegalArgumentException(message);
-        }
+    private Document handlePrimaryDocument(Request request, String document) {
+
+        return switch (request.getType()) {
+            case "invoice" -> invoiceBuilder(request, document);
+            case "letter" -> letterBuilder(document);
+            default -> null;
+        };
+
+
     }
 
-    private List<Document> handleAttachments(List<MultipartFile> document){
+
+    public Document invoiceBuilder(Request request, String document) {
+        InvoiceDTO invoice = request.getInvoice();
+        return new Document(UUID.randomUUID(), request.getSubject(), FileType.fromFilename(document), new Invoice(invoice.getLink(), invoice.getDueDate(), invoice.getSum(), invoice.getCreditorAccount(), invoice.getKid()));
+    }
+
+    private Document letterBuilder(String document) {
+
+        return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
+    }
+
+
+    private List<Document> handleAttachments(List<MultipartFile> document) {
 
         List<Document> attachments = new ArrayList<>();
         if (!document.isEmpty()) {
@@ -89,9 +108,15 @@ public class MessageService {
         return attachments;
     }
 
-
-
-
+    // TODO ändra när objekt är skapat
+    private void handleEmptyInput(List<MultipartFile> document, Request request) {
+        if (request == null || document == null || document.isEmpty()) {
+            String message = request == null ? "request is null" :
+                    "No documents found";
+            logger.warning(message);
+            throw new IllegalArgumentException(message);
+        }
+    }
 
 }
 

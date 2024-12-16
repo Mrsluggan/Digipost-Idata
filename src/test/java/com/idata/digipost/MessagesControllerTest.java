@@ -46,7 +46,7 @@ public class MessagesControllerTest {
         List<MultipartFile> realDocuments = List.of(realFile1, realFile2);
 
         ResponseEntity<String> expectedResponse = ResponseEntity.ok().build();
-        Mockito.when(messageService.sendMessage(recipient,subject, realDocuments))
+        Mockito.when(messageService.sendMessage( realDocuments, null))
                 .thenReturn(String.valueOf(expectedResponse.getStatusCode()));
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
@@ -64,7 +64,7 @@ public class MessagesControllerTest {
         String subject = "Test Subject";
         String recipient = "test@example.com";
 
-        Mockito.when(messageService.sendMessage(eq(recipient), eq(subject), any(List.class)))
+        Mockito.when(messageService.sendMessage( any(List.class),null))
                 .thenThrow(IllegalArgumentException.class);
 
         // Act & Assert

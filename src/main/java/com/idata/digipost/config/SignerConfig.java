@@ -4,6 +4,7 @@ import no.digipost.api.client.DigipostClient;
 import no.digipost.api.client.DigipostClientConfig;
 import no.digipost.api.client.SenderId;
 import no.digipost.api.client.security.Signer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,11 @@ import static no.digipost.api.client.security.Signer.usingKeyFromPKCS12KeyStore;
 @Configuration
 public class SignerConfig {
 
+    @Value("digipost.idata.senderid")
+    String senderId;
+
+    @Value("digipost.idata.certificate")
+    String certificatePassword;
 
     @Bean
     public DigipostClient getClient() {
