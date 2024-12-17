@@ -35,7 +35,7 @@ public class MessagesControllerTest {
 
     @Test
     public void testSendMessageWithValidInputs() throws Exception {
-        Request request = new Request("test", "test@example.com", "letter", null);
+        Request request = new Request("test", "test@example.com", "letter", null,null);
 
         MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
         MockMultipartFile document2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
@@ -61,7 +61,7 @@ public class MessagesControllerTest {
     public void testSendMessageWithEmptyDocuments() throws Exception {
         // Arrange
 
-        Request request = new Request("test", "test@example.com", "letter", null);
+        Request request = new Request("test", "test@example.com", "letter", null,null);
 
 
         Mockito.when(messageService.sendMessage(any(List.class), null))

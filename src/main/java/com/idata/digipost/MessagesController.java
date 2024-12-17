@@ -1,6 +1,6 @@
 package com.idata.digipost;
 
-import com.idata.digipost.Models.InvoiceDTO;
+
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.datatypes.types.invoice.Invoice;
 import org.springframework.http.ResponseEntity;

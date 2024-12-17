@@ -4,8 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import com.idata.digipost.Models.InvoiceDTO;
 import com.idata.digipost.config.SignerConfig;
+import com.idata.digipost.models.InvoiceDTO;
+import com.idata.digipost.models.PrintDetailsDTO;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
+
+import javax.print.Doc;
 
 @Slf4j
 @Service
@@ -36,10 +39,12 @@ public class MessageService {
         Document primaryDocument = createPrimaryDocument(request, documents.get(0).getOriginalFilename());
         List<Document> attachments = createAttachments(documents);
 
+
         Message message = Message.newMessage("messageId", primaryDocument)
-                .recipient(pin)
+                .recipient(new MessageRecipient(pin, createPhysicalLetterDocument(request)))
                 .attachments(attachments)
                 .build();
+
 
         try {
             var messageBuilder = client.createMessage(message)
@@ -88,6 +93,18 @@ public class MessageService {
         LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
+
+    private PrintDetails createPhysicalLetterDocument(Request request) {
+
+        PrintDetailsDTO printDetailsDTO = request.getPrintDetails();
+
+
+        return new PrintDetails(
+                new PrintRecipient(printDetailsDTO.getName(), new NorwegianAddress(printDetailsDTO.getRecipientsAddress(), printDetailsDTO.getZip(), printDetailsDTO.getZip())),
+                new PrintRecipient("Norgesbedriften", new NorwegianAddress("Akers Àle 2", "0400", "Oslo")),
+                PrintDetails.PrintColors.MONOCHROME, PrintDetails.NondeliverableHandling.RETURN_TO_SENDER);
+    }
+
 
     private Document createLetterWithSmsNotificationDocument(Request request, String document) {
         LOGGER.info("Creating letter with SMS notification");
