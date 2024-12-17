@@ -11,11 +11,28 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PrintDetailsDTO {
 
-    private String name;
-    private String recipientsAddress;
-    private String city;
-    private String state;
-    private String zip;
-    private String country;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class RecipientAddress {
+        private String name;
+        private String address;
+        private String city;
+        private String zip;
+    }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ReturnAddress {
+        private String name;
+        private String address;
+        private String city;
+        private String zip;
+    }
+
+    private RecipientAddress recipientAddress;
+    private ReturnAddress returnAddress;
 }

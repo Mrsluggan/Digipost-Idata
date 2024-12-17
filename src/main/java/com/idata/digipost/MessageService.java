@@ -40,14 +40,11 @@ public class MessageService {
         List<Document> attachments = createAttachments(documents);
 
 
-        Message message = Message.newMessage("messageId", primaryDocument)
-                .recipient(new MessageRecipient(pin, createPhysicalLetterDocument(request)))
-                .attachments(attachments)
-                .build();
+
 
 
         try {
-            var messageBuilder = client.createMessage(message)
+            var messageBuilder = client.createMessage(createMessage(pin,request,primaryDocument, attachments))
                     .addContent(primaryDocument, documents.get(0).getBytes());
 
             for (int i = 0; i < attachments.size(); i++) {
@@ -72,6 +69,10 @@ public class MessageService {
         };
     }
 
+
+
+
+
     private Document createInvoiceDocument(Request request, String document) {
         LOGGER.info("Creating invoice");
         InvoiceDTO invoice = request.getInvoice();
@@ -93,15 +94,27 @@ public class MessageService {
         LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
+    private Message createMessage(PersonalIdentificationNumber pin, Request request, Document primaryDocument, List<Document> attachments) {
+        if (request.getPrintDetails() != null) {
+            return Message.newMessage("messageId", primaryDocument)
+                    .recipient(new MessageRecipient(pin, createPhysicalLetterDocument(request)))
+                    .attachments(attachments)
+                    .build();
+        }else {
+            return Message.newMessage("messageId", primaryDocument)
+                    .recipient(pin)
+                    .attachments(attachments)
+                    .build();        }
 
+
+    }
     private PrintDetails createPhysicalLetterDocument(Request request) {
 
         PrintDetailsDTO printDetailsDTO = request.getPrintDetails();
 
-
         return new PrintDetails(
-                new PrintRecipient(printDetailsDTO.getName(), new NorwegianAddress(printDetailsDTO.getRecipientsAddress(), printDetailsDTO.getZip(), printDetailsDTO.getZip())),
-                new PrintRecipient("Norgesbedriften", new NorwegianAddress("Akers Àle 2", "0400", "Oslo")),
+                new PrintRecipient(printDetailsDTO.getRecipientAddress().getName(), new NorwegianAddress(printDetailsDTO.getRecipientAddress().getAddress(), printDetailsDTO.getRecipientAddress().getZip(), printDetailsDTO.getRecipientAddress().getCity())),
+                new PrintRecipient(printDetailsDTO.getReturnAddress().getName(), new NorwegianAddress(printDetailsDTO.getReturnAddress().getAddress(), printDetailsDTO.getReturnAddress().getZip(), printDetailsDTO.getReturnAddress().getCity())),
                 PrintDetails.PrintColors.MONOCHROME, PrintDetails.NondeliverableHandling.RETURN_TO_SENDER);
     }
 
