@@ -119,5 +119,4 @@ public class MessagesControllerTest {
                                 .andExpect(jsonPath("$.type").value("invoice"))
                                 .andExpect(jsonPath("$.invoice.link").value(invoiceRequest.getInvoice().getLink()));
         }
-
 }
