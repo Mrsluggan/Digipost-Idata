@@ -1,6 +1,9 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.idata.digipost.models.Request;
+import com.idata.digipost.service.MessageService;
+
 import jakarta.servlet.http.Part;
 import no.digipost.api.client.representations.MessageDelivery;
 import org.junit.jupiter.api.Test;

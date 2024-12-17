@@ -1,8 +1,5 @@
-package com.idata.digipost;
+package com.idata.digipost.models;
 
-
-import com.idata.digipost.models.InvoiceDTO;
-import com.idata.digipost.models.PrintDetailsDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

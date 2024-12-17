@@ -1,9 +1,10 @@
-package com.idata.digipost;
+package com.idata.digipost.service;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import com.idata.digipost.models.Request;
 import com.idata.digipost.config.SignerConfig;
 import com.idata.digipost.models.InvoiceDTO;
 import com.idata.digipost.models.PrintDetailsDTO;
@@ -39,12 +40,13 @@ public class MessageService {
         Document primaryDocument = createPrimaryDocument(request, documents.get(0).getOriginalFilename());
         List<Document> attachments = createAttachments(documents);
 
-
-
-
+        Message message = Message.newMessage("messageId", primaryDocument)
+        .recipient(pin)
+        .attachments(attachments)
+        .build();
 
         try {
-            var messageBuilder = client.createMessage(createMessage(pin,request,primaryDocument, attachments))
+            var messageBuilder = client.createMessage(message)
                     .addContent(primaryDocument, documents.get(0).getBytes());
 
             for (int i = 0; i < attachments.size(); i++) {
@@ -69,10 +71,6 @@ public class MessageService {
         };
     }
 
-
-
-
-
     private Document createInvoiceDocument(Request request, String document) {
         LOGGER.info("Creating invoice");
         InvoiceDTO invoice = request.getInvoice();
@@ -94,6 +92,7 @@ public class MessageService {
         LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
+
     private Message createMessage(PersonalIdentificationNumber pin, Request request, Document primaryDocument, List<Document> attachments) {
         if (request.getPrintDetails() != null) {
             return Message.newMessage("messageId", primaryDocument)
@@ -104,8 +103,8 @@ public class MessageService {
             return Message.newMessage("messageId", primaryDocument)
                     .recipient(pin)
                     .attachments(attachments)
-                    .build();        }
-
+                    .build();        
+        }
 
     }
     private PrintDetails createPhysicalLetterDocument(Request request) {
@@ -161,4 +160,3 @@ public class MessageService {
         }
     }
 }
-
