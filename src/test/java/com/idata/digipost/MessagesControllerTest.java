@@ -27,58 +27,96 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MessagesControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Mock
-    private MessageService messageService;
+        @Mock
+        private MessageService messageService;
 
-    @Test
-    public void testSendMessageWithValidInputs() throws Exception {
-        Request request = new Request("test", "test@example.com", "letter", null,null);
+        @Test
+        public void testSendMessageWithValidInputs() throws Exception {
+                Request request = new Request("test", "test@example.com", "letter", null);
 
-        MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
-        MockMultipartFile document2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
+                MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE,
+                                "File content".getBytes());
+                MockMultipartFile document2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE,
+                                "Another file content".getBytes());
 
-        MultipartFile realFile1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE, "File content".getBytes());
-        MultipartFile realFile2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE, "Another file content".getBytes());
-        List<MultipartFile> realDocuments = List.of(realFile1, realFile2);
+                MultipartFile realFile1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE,
+                                "File content".getBytes());
+                MultipartFile realFile2 = new MockMultipartFile("document", "file2.txt", MediaType.TEXT_PLAIN_VALUE,
+                                "Another file content".getBytes());
+                List<MultipartFile> realDocuments = List.of(realFile1, realFile2);
 
-        ResponseEntity<String> expectedResponse = ResponseEntity.ok().build();
-        Mockito.when(messageService.sendMessage(realDocuments, request))
-                .thenReturn(request);
+                ResponseEntity<String> expectedResponse = ResponseEntity.ok().build();
+                Mockito.when(messageService.sendMessage(realDocuments, request))
+                                .thenReturn(request);
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
-                        .file(document1)
-                        .file(document2)
-                        .content(new ObjectMapper().writeValueAsString(request))
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
+                                .file(document1)
+                                .file(document2)
+                                .content(new ObjectMapper().writeValueAsString(request))
 
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isOk());
-    }
-    
-    @Test
-    public void testSendMessageWithEmptyDocuments() throws Exception {
-        // Arrange
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isOk());
+        }
 
-        Request request = new Request("test", "test@example.com", "letter", null,null);
+        @Test
+        public void testSendMessageWithEmptyDocuments() throws Exception {
+                // Arrange
 
+                Request request = new Request("test", "test@example.com", "letter", null);
 
-        Mockito.when(messageService.sendMessage(any(List.class), null))
-                .thenThrow(IllegalArgumentException.class);
+                Mockito.when(messageService.sendMessage(any(List.class), null))
+                                .thenThrow(IllegalArgumentException.class);
 
-        // Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
-                        .param("request", String.valueOf(request))
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest());
-    }
+                // Act & Assert
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
+                                .param("request", String.valueOf(request))
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isBadRequest());
+        }
 
-    @Test
-    public void testSendMessageWithMissingParameters() throws Exception {
-        // Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest());
-    }
+        @Test
+        public void testSendMessageWithMissingParameters() throws Exception {
+                // Act & Assert
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+
+        public void testSendInvoiceWithValidInputs() throws Exception {
+                // Arrange
+                com.idata.digipost.Models.InvoiceDTO invoiceDTO = new com.idata.digipost.Models.InvoiceDTO(
+                                "http://example.com/invoice.pdf",
+                                "2024-12-31",
+                                1500.0,
+                                "12345678901",
+                                "987654321");
+
+                Request invoiceRequest = new Request(
+                                "Invoice Subject",
+                                "recipient@example.com",
+                                "invoice",
+                                invoiceDTO);
+
+                MockMultipartFile invoiceDocument = new MockMultipartFile(
+                                "document",
+                                "invoice.pdf",
+                                MediaType.APPLICATION_PDF_VALUE,
+                                "Invoice content".getBytes());
+
+                Mockito.when(messageService.sendMessage(any(), any())).thenReturn(invoiceRequest);
+
+                // Act & Assert
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/api/message")
+                                .file(invoiceDocument)
+                                .param("request", new ObjectMapper().writeValueAsString(invoiceRequest))
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.type").value("invoice"))
+                                .andExpect(jsonPath("$.invoice.link").value(invoiceRequest.getInvoice().getLink()));
+        }
 }
