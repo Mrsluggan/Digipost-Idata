@@ -34,5 +34,4 @@ public class PrintDetailsDTO {
     }
 
     private RecipientAddress recipientAddress;
-    private ReturnAddress returnAddress;
-}
+    private ReturnAddress returnAddress;}
