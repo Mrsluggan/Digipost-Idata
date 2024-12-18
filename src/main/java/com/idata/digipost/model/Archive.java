@@ -1,3 +1,4 @@
+package com.idata.digipost.model;
 //package com.idata.digipost.models;
 
 // import java.util.ArrayList;

@@ -2,13 +2,12 @@ package com.idata.digipost.controller;
 
 
 import lombok.extern.slf4j.Slf4j;
-import no.digipost.api.datatypes.types.invoice.Invoice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.idata.digipost.model.Request;
 import com.idata.digipost.service.MessageService;
-import com.idata.digipost.models.Request;
 
 import java.util.List;
 import java.util.logging.Logger;
