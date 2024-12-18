@@ -1,4 +1,4 @@
-package com.idata.digipost.models;
+package com.idata.digipost.Models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +16,5 @@ public class Request {
     private String subject;
     private InvoiceDTO invoice;
     private PrintDetailsDTO printDetails;
-
 
 }

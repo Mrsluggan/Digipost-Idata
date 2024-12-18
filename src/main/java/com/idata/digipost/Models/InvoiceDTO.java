@@ -1,4 +1,4 @@
-package com.idata.digipost.models;
+package com.idata.digipost.Models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

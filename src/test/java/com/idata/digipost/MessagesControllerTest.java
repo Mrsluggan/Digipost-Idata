@@ -1,7 +1,6 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.idata.digipost.models.Request;
 import com.idata.digipost.service.MessageService;
 
 import jakarta.servlet.http.Part;
@@ -18,6 +17,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.idata.digipost.Models.Request;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +39,7 @@ public class MessagesControllerTest {
 
         @Test
         public void testSendMessageWithValidInputs() throws Exception {
-                Request request = new Request("test", "test@example.com", "letter", null);
+                Request request = new Request("test", "test@example.com", "letter", null, null);
 
                 MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE,
                                 "File content".getBytes());
@@ -68,7 +69,7 @@ public class MessagesControllerTest {
         public void testSendMessageWithEmptyDocuments() throws Exception {
                 // Arrange
 
-                Request request = new Request("test", "test@example.com", "letter", null);
+                Request request = new Request("test", "test@example.com", "letter", null, null);
 
                 Mockito.when(messageService.sendMessage(any(List.class), null))
                                 .thenThrow(IllegalArgumentException.class);
@@ -103,7 +104,7 @@ public class MessagesControllerTest {
                                 "Invoice Subject",
                                 "recipient@example.com",
                                 "invoice",
-                                invoiceDTO);
+                                invoiceDTO, null);
 
                 MockMultipartFile invoiceDocument = new MockMultipartFile(
                                 "document",
@@ -122,4 +123,5 @@ public class MessagesControllerTest {
                                 .andExpect(jsonPath("$.type").value("invoice"))
                                 .andExpect(jsonPath("$.invoice.link").value(invoiceRequest.getInvoice().getLink()));
         }
+
 }
