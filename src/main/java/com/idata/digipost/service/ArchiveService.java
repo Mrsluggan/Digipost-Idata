@@ -1,5 +1,4 @@
-package com.idata.digipost.service;
-// package com.idata.digipost;
+// package com.idata.digipost.service;
 
 // import java.io.InputStream;
 // import java.net.URI;

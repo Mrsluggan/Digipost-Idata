@@ -18,11 +18,11 @@ import static no.digipost.api.client.security.Signer.usingKeyFromPKCS12KeyStore;
 @Configuration
 public class SignerConfig {
 
-    @Value("digipost.idata.senderid")
+    @Value("${digipost.idata.senderid}")
     String senderId;
 
-    @Value("digipost.idata.certificate")
-    String certificatePassword;
+    @Value("${digipost.idata.certificate}")
+    String signer;
 
     @Bean
     public DigipostClient getClient() {
