@@ -4,10 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import com.idata.digipost.model.Request;
 import com.idata.digipost.config.SignerConfig;
 import com.idata.digipost.model.InvoiceDTO;
-import com.idata.digipost.model.PrintDetailsDTO;
+import com.idata.digipost.model.Request;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
-
-import javax.print.Doc;
 
 @Slf4j
 @Service
@@ -41,9 +38,9 @@ public class MessageService {
         List<Document> attachments = createAttachments(documents);
 
         Message message = Message.newMessage("messageId", primaryDocument)
-        .recipient(pin)
-        .attachments(attachments)
-        .build();
+                .recipient(pin)
+                .attachments(attachments)
+                .build();
 
         try {
             var messageBuilder = client.createMessage(message)
@@ -73,7 +70,7 @@ public class MessageService {
 
     private Document createInvoiceDocument(Request request, String document) {
         LOGGER.info("Creating invoice");
-        InvoiceDTO invoice = request.getInvoice();
+        com.idata.digipost.model.InvoiceDTO invoice = request.getInvoice();
         return new Document(
                 UUID.randomUUID(),
                 request.getSubject(),
@@ -92,31 +89,6 @@ public class MessageService {
         LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
     }
-
-    private Message createMessage(PersonalIdentificationNumber pin, Request request, Document primaryDocument, List<Document> attachments) {
-        if (request.getPrintDetails() != null) {
-            return Message.newMessage("messageId", primaryDocument)
-                    .recipient(new MessageRecipient(pin, createPhysicalLetterDocument(request)))
-                    .attachments(attachments)
-                    .build();
-        }else {
-            return Message.newMessage("messageId", primaryDocument)
-                    .recipient(pin)
-                    .attachments(attachments)
-                    .build();        
-        }
-
-    }
-    private PrintDetails createPhysicalLetterDocument(Request request) {
-
-        PrintDetailsDTO printDetailsDTO = request.getPrintDetails();
-
-        return new PrintDetails(
-                new PrintRecipient(printDetailsDTO.getRecipientAddress().getName(), new NorwegianAddress(printDetailsDTO.getRecipientAddress().getAddress(), printDetailsDTO.getRecipientAddress().getZip(), printDetailsDTO.getRecipientAddress().getCity())),
-                new PrintRecipient(printDetailsDTO.getReturnAddress().getName(), new NorwegianAddress(printDetailsDTO.getReturnAddress().getAddress(), printDetailsDTO.getReturnAddress().getZip(), printDetailsDTO.getReturnAddress().getCity())),
-                PrintDetails.PrintColors.MONOCHROME, PrintDetails.NondeliverableHandling.RETURN_TO_SENDER);
-    }
-
 
     private Document createLetterWithSmsNotificationDocument(Request request, String document) {
         LOGGER.info("Creating letter with SMS notification");
@@ -160,3 +132,4 @@ public class MessageService {
         }
     }
 }
+
