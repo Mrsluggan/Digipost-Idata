@@ -1,6 +1,9 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.idata.digipost.model.InvoiceDTO;
+import com.idata.digipost.model.Request;
+import com.idata.digipost.service.MessageService;
 import jakarta.servlet.http.Part;
 import no.digipost.api.client.representations.MessageDelivery;
 import org.junit.jupiter.api.Test;
@@ -90,9 +93,9 @@ public class MessagesControllerTest {
         public void testSendInvoiceWithValidInputs() throws Exception {
                 // Arrange
                InvoiceDTO invoiceDTO = new InvoiceDTO(
-                                "http://example.com/invoice.pdf",
-                                "2024-12-31",
-                                1500.0,
+                       null,
+                       null,
+                                null,
                                 "12345678901",
                                 "987654321");
 
