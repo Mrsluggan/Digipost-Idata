@@ -1,22 +1,11 @@
-<<<<<<<< Updated upstream:src/main/java/com/idata/digipost/service/MessageService.java
-package com.idata.digipost.service;
-========
-package com.idata.digipost.servies;
->>>>>>>> Stashed changes:src/main/java/com/idata/digipost/servies/MessageService.java
+package com.idata.digipost;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
 import com.idata.digipost.Models.InvoiceDTO;
-import com.idata.digipost.Models.Request;
 import com.idata.digipost.config.SignerConfig;
-<<<<<<<< Updated upstream:src/main/java/com/idata/digipost/service/MessageService.java
-========
-import com.idata.digipost.models.InvoiceDTO;
-import com.idata.digipost.models.PrintDetailsDTO;
-import com.idata.digipost.models.Request;
->>>>>>>> Stashed changes:src/main/java/com/idata/digipost/servies/MessageService.java
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;

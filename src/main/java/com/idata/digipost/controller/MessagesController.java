@@ -1,16 +1,15 @@
-package com.idata.digipost.Controllers;
+package com.idata.digipost.controller;
 
-<<<<<<< Updated upstream:src/main/java/com/idata/digipost/Controllers/MessagesController.java
-import com.idata.digipost.Models.Request;
+
 import com.idata.digipost.service.MessageService;
-=======
-import com.idata.digipost.models.Request;
-import com.idata.digipost.servies.MessageService;
->>>>>>> Stashed changes:src/main/java/com/idata/digipost/MessagesController.java
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.idata.digipost.model.Request;
+import com.idata.digipost.service.MessageService;
 
 import java.util.List;
 import java.util.logging.Logger;

@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream
-package com.idata.digipost.Models;
-=======
-package com.idata.digipost.models;
->>>>>>> Stashed changes
+package com.idata.digipost;
 
 
+import com.idata.digipost.Models.InvoiceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +16,8 @@ public class Request {
     private String type;
     private String recipient;
     private String subject;
-
     private InvoiceDTO invoice;
-
+    private PrintDetailsDTO printDetails;
 
 
 }
