@@ -8,6 +8,7 @@ import com.idata.digipost.model.Request;
 import com.idata.digipost.config.SignerConfig;
 import com.idata.digipost.model.InvoiceDTO;
 import com.idata.digipost.model.PrintDetailsDTO;
+
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;
@@ -16,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
-
-import javax.print.Doc;
 
 @Slf4j
 @Service
@@ -73,7 +72,7 @@ public class MessageService {
 
     private Document createInvoiceDocument(Request request, String document) {
         LOGGER.info("Creating invoice");
-        InvoiceDTO invoice = request.getInvoice();
+        com.idata.digipost.model.InvoiceDTO invoice = request.getInvoice();
         return new Document(
                 UUID.randomUUID(),
                 request.getSubject(),
