@@ -1,8 +1,13 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+<<<<<<< Updated upstream
 import com.idata.digipost.Models.Request;
 import com.idata.digipost.service.MessageService;
+=======
+import com.idata.digipost.models.Request;
+import com.idata.digipost.servies.MessageService;
+>>>>>>> Stashed changes
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;

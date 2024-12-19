@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 package com.idata.digipost.Models;
+=======
+package com.idata.digipost.models;
+>>>>>>> Stashed changes
 
 
 import lombok.AllArgsConstructor;

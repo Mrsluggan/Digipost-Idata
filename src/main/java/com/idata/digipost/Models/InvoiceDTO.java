@@ -14,6 +14,11 @@ import java.time.ZonedDateTime;
 @Builder
 public class InvoiceDTO {
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
     private ExternalLink link;
     private ZonedDateTime dueDate;
     private BigDecimal sum;
