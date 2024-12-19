@@ -5,8 +5,9 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import com.idata.digipost.config.SignerConfig;
-import com.idata.digipost.model.InvoiceDTO;
 import com.idata.digipost.model.Request;
+import com.idata.digipost.model.SendMessageResponse;
+
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import no.digipost.api.client.DigipostClient;
+import no.digipost.api.client.SenderId;
 
 @Slf4j
 @Service
@@ -28,7 +30,7 @@ public class MessageService {
         this.client = signerConfig.getClient();
     }
 
-    public Request sendMessage(List<MultipartFile> documents, Request request) {
+    public SendMessageResponse sendMessage(List<MultipartFile> documents, Request request) {
         validateInput(documents, request);
 
         LOGGER.info("Sending message to: " + request.getRecipient());
@@ -52,10 +54,21 @@ public class MessageService {
 
             messageBuilder.send();
             LOGGER.info("Message sent successfully");
-            return request;
+            return new SendMessageResponse(request, primaryDocument.uuid);
         } catch (IOException e) {
             LOGGER.severe("Error while sending message: " + e.getMessage());
             throw new RuntimeException("Failed to send message", e);
+        }
+    }
+
+    public DocumentStatus getDocumentStatus(String senderId, UUID documentUuid) { 
+        try { 
+            DocumentStatus status = client.getDocumentStatus(SenderId.of(Long.parseLong(senderId)), documentUuid); 
+            LOGGER.info("Document status: " + status.status); 
+            LOGGER.info("Delivery channel: " + status.channel); 
+            return status; 
+        } catch (Exception e) { 
+            LOGGER.severe("Error while fetching document status: " + e.getMessage()); return null; 
         }
     }
 
@@ -132,4 +145,3 @@ public class MessageService {
         }
     }
 }
-
