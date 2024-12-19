@@ -5,8 +5,10 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import com.idata.digipost.config.SignerConfig;
+
 import com.idata.digipost.model.Request;
 import com.idata.digipost.model.SendMessageResponse;
+import com.idata.digipost.model.PrintDetailsDTO;
 
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
@@ -93,14 +95,44 @@ public class MessageService {
                         invoice.getDueDate(),
                         invoice.getSum(),
                         invoice.getCreditorAccount(),
-                        invoice.getKid()
-                )
-        );
+                        invoice.getKid()));
     }
 
     private Document createLetterDocument(String document) {
         LOGGER.info("Creating letter");
         return new Document(UUID.randomUUID(), document, FileType.fromFilename(document));
+    }
+
+    private Message createMessage(PersonalIdentificationNumber pin, Request request, Document primaryDocument,
+            List<Document> attachments) {
+        if (request.getPrintDetails() != null) {
+            return Message.newMessage("messageId", primaryDocument)
+                    .recipient(new MessageRecipient(pin, createPhysicalLetterDocument(request)))
+                    .attachments(attachments)
+                    .build();
+        } else {
+            return Message.newMessage("messageId", primaryDocument)
+                    .recipient(pin)
+                    .attachments(attachments)
+                    .build();
+        }
+
+    }
+
+    private PrintDetails createPhysicalLetterDocument(Request request) {
+
+        PrintDetailsDTO printDetailsDTO = request.getPrintDetails();
+
+        return new PrintDetails(
+                new PrintRecipient(printDetailsDTO.getRecipientAddress().getName(),
+                        new NorwegianAddress(printDetailsDTO.getRecipientAddress().getAddress(),
+                                printDetailsDTO.getRecipientAddress().getZip(),
+                                printDetailsDTO.getRecipientAddress().getCity())),
+                new PrintRecipient(printDetailsDTO.getReturnAddress().getName(),
+                        new NorwegianAddress(printDetailsDTO.getReturnAddress().getAddress(),
+                                printDetailsDTO.getReturnAddress().getZip(),
+                                printDetailsDTO.getReturnAddress().getCity())),
+                PrintDetails.PrintColors.MONOCHROME, PrintDetails.NondeliverableHandling.RETURN_TO_SENDER);
     }
 
     private Document createLetterWithSmsNotificationDocument(Request request, String document) {
@@ -113,8 +145,7 @@ public class MessageService {
                 new SmsNotification(1),
                 null,
                 AuthenticationLevel.PASSWORD,
-                SensitivityLevel.NORMAL
-        );
+                SensitivityLevel.NORMAL);
     }
 
     private List<Document> createAttachments(List<MultipartFile> documents) {
@@ -129,8 +160,7 @@ public class MessageService {
             attachments.add(new Document(
                     UUID.randomUUID(),
                     documents.get(i).getOriginalFilename(),
-                    FileType.fromFilename(documents.get(i).getOriginalFilename())
-            ));
+                    FileType.fromFilename(documents.get(i).getOriginalFilename())));
         }
         return attachments;
     }
@@ -143,5 +173,31 @@ public class MessageService {
             LOGGER.severe(message);
             throw new IllegalArgumentException(message);
         }
+    }
+
+    public void sendSecureLetter(String recipient, String subject, InputStream contentStream) {
+        LOGGER.info("Sending secure letter to: " + recipient);
+
+        PersonalIdentificationNumber pin = new PersonalIdentificationNumber(recipient);
+
+        Document secureDocument = new Document(
+                UUID.randomUUID(),
+                subject,
+                FileType.PDF,
+                null,
+                null,
+                null,
+                AuthenticationLevel.TWO_FACTOR,
+                SensitivityLevel.SENSITIVE);
+
+        Message secureMessage = Message.newMessage(UUID.randomUUID().toString(), secureDocument)
+                .recipient(pin)
+                .build();
+
+        client.createMessage(secureMessage)
+                .addContent(secureDocument, contentStream)
+                .send();
+
+        LOGGER.info("Secure letter sent successfully");
     }
 }
