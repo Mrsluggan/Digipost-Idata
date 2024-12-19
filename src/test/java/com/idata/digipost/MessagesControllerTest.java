@@ -1,7 +1,8 @@
 package com.idata.digipost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.idata.digipost.models.Request;
+import com.idata.digipost.model.InvoiceDTO;
+import com.idata.digipost.model.Request;
 import com.idata.digipost.service.MessageService;
 
 import jakarta.servlet.http.Part;
@@ -38,7 +39,7 @@ public class MessagesControllerTest {
 
         @Test
         public void testSendMessageWithValidInputs() throws Exception {
-                Request request = new Request("test", "test@example.com", "letter", null);
+                Request request = new Request("test", "test@example.com", "letter", null,null);
 
                 MockMultipartFile document1 = new MockMultipartFile("document", "file1.txt", MediaType.TEXT_PLAIN_VALUE,
                                 "File content".getBytes());
@@ -68,7 +69,7 @@ public class MessagesControllerTest {
         public void testSendMessageWithEmptyDocuments() throws Exception {
                 // Arrange
 
-                Request request = new Request("test", "test@example.com", "letter", null);
+                Request request = new Request("test", "test@example.com", "letter", null,null);
 
                 Mockito.when(messageService.sendMessage(any(List.class), null))
                                 .thenThrow(IllegalArgumentException.class);
@@ -92,7 +93,7 @@ public class MessagesControllerTest {
 
         public void testSendInvoiceWithValidInputs() throws Exception {
                 // Arrange
-                com.idata.digipost.Models.InvoiceDTO invoiceDTO = new com.idata.digipost.Models.InvoiceDTO(
+               InvoiceDTO invoiceDTO = new InvoiceDTO(
                                 "http://example.com/invoice.pdf",
                                 "2024-12-31",
                                 1500.0,
@@ -103,7 +104,7 @@ public class MessagesControllerTest {
                                 "Invoice Subject",
                                 "recipient@example.com",
                                 "invoice",
-                                invoiceDTO);
+                                invoiceDTO,null);
 
                 MockMultipartFile invoiceDocument = new MockMultipartFile(
                                 "document",

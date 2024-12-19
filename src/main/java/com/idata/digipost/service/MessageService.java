@@ -4,10 +4,10 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import com.idata.digipost.models.Request;
+import com.idata.digipost.model.Request;
 import com.idata.digipost.config.SignerConfig;
-import com.idata.digipost.models.InvoiceDTO;
-import com.idata.digipost.models.PrintDetailsDTO;
+import com.idata.digipost.model.InvoiceDTO;
+import com.idata.digipost.model.PrintDetailsDTO;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.api.client.representations.*;
 import no.digipost.api.datatypes.types.invoice.Invoice;
